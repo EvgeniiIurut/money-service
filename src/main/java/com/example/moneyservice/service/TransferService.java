@@ -1,7 +1,7 @@
 package com.example.moneyservice.service;
 
 import com.example.moneyservice.exception.NegativeAmountException;
-import com.example.moneyservice.exception.SameAmountsException;
+import com.example.moneyservice.exception.SameAccountsException;
 import com.example.moneyservice.model.Account;
 import com.example.moneyservice.model.Transfer;
 import com.example.moneyservice.repository.AccountRepository;
@@ -25,7 +25,7 @@ public class TransferService {
     public Transfer createTransfer(Long fromAccountNumber, Long toAccountNumber, BigDecimal amount) {
 
         if (fromAccountNumber.equals(toAccountNumber)) {
-            throw new SameAmountsException(fromAccountNumber);
+            throw new SameAccountsException(fromAccountNumber);
         }
         Account fromAccount = accountRepository.getById(fromAccountNumber);
         Account toAccount = accountRepository.getById(toAccountNumber);

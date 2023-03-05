@@ -47,13 +47,7 @@ class AccountMvcServiceTest {
             executorService.execute(() -> {
                 log.info("Tread " + Thread.currentThread().getName());
                 try {
-                    MvcResult mvcResult = mockMvc.perform(patch("http://localhost:8080/take")
-                                    .param("fromAccount", "1L")
-                                    .param("amount", "10")
-                                    .characterEncoding(UTF_8)
-                                    .contentType(MediaType.APPLICATION_JSON))
-                            .andExpect(status().isOk())
-                            .andReturn();
+                    MvcResult mvcResult = mockMvc.perform(patch("http://localhost:8080/take").param("fromAccount", "1L").param("amount", "10").characterEncoding(UTF_8).contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andReturn();
                     Account account = jsonToObject(mvcResult.getResponse().getContentAsString(), Account.class);
                     accountAtomicReference.set(account);
                 } catch (Exception e) {
