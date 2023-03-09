@@ -18,6 +18,8 @@ import java.math.BigDecimal;
 import static com.example.moneyservice.utils.JsonStringConverter.asJsonString;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -26,6 +28,9 @@ import static org.springframework.test.web.servlet.setup.MockMvcBuilders.standal
 @WebMvcTest(TransferController.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TransferControllerTest {
+    private final String urlTakeEndpointTemplate = "http://localhost:8080/take";
+    private final Long idOfFirstAccount = 1L;
+    private final BigDecimal amountOfFirstAccount = new BigDecimal(10);
 
     @MockBean
     private TransferServiceImpl transferServiceImpl;
@@ -39,19 +44,22 @@ class TransferControllerTest {
 
     @Test
     void createTransferFromAccountToCash() throws Exception {
-        Account account = new Account(1L, new BigDecimal(10), 0);
-
         when(transferServiceImpl
                 .createTransferFromAccountToCash(1L, new BigDecimal(10)))
-                .thenReturn(getResponseTransferDto(account));
+                .thenReturn(getResponseTransferDto(getRequestAccount()));
 
         MvcResult mvcResult = mockMvc
-                .perform(post("http://localhost:8080/take")
+                .perform(post(urlTakeEndpointTemplate)
                         .characterEncoding(UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(asJsonString(getTransferFromAccountToCashDto())))
                 .andExpect(status().isOk()).andReturn();
-        assertThat(asJsonString(getResponseTransferDto(account))).isEqualTo(mvcResult.getResponse().getContentAsString());
+        assertThat(asJsonString(getResponseTransferDto(getRequestAccount())))
+                .isEqualTo(mvcResult
+                        .getResponse()
+                        .getContentAsString());
+        verify(transferServiceImpl, times(1))
+                .createTransferFromAccountToCash(idOfFirstAccount, amountOfFirstAccount);
     }
 
     @Test
@@ -80,5 +88,11 @@ class TransferControllerTest {
         return transfer;
     }
 
-
+    public static Account getRequestAccount() {
+        Account account = new Account();
+        account.setId(1L);
+        account.setBalance(new BigDecimal(10));
+        account.setVersion(0);
+        return account;
+    }
 }
