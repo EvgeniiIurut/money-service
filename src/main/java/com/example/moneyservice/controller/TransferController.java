@@ -3,33 +3,34 @@ package com.example.moneyservice.controller;
 import com.example.moneyservice.dto.TransferDto;
 import com.example.moneyservice.dto.TransferFromAccountToCashDto;
 import com.example.moneyservice.dto.TransferFromCashToAccountDto;
-import com.example.moneyservice.service.TransferService;
+import com.example.moneyservice.model.Transfer;
+import com.example.moneyservice.service.impl.TransferServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
 public class TransferController {
-    private final TransferService transferService;
+    private final TransferServiceImpl transferServiceImpl;
 
-    @PatchMapping("/transfer")
+    @PostMapping("/transfer")
     public ResponseEntity<String> createTransferBetweenAccounts(@RequestBody TransferDto transferDto) {
-        transferService.createTransfer(transferDto.getFromAccount(), transferDto.getToAccount(), transferDto.getAmount());
+        transferServiceImpl.createTransfer(transferDto.getFromAccount(), transferDto.getToAccount(), transferDto.getAmount());
         return ResponseEntity.ok("OK");
     }
 
-    @PatchMapping("/take")
-    public ResponseEntity<String> createTransferFromAccountToCash(@RequestBody TransferFromAccountToCashDto transferFromAccountToCashDto) {
-        transferService.createTransferFromAccountToCash(transferFromAccountToCashDto.getFromAccount(), transferFromAccountToCashDto.getAmount());
-        return ResponseEntity.ok("OK");
+    @PostMapping("/take")
+    public ResponseEntity<Transfer> createTransferFromAccountToCash(@RequestBody TransferFromAccountToCashDto transferFromAccountToCashDto) {
+        Transfer transferFromAccountToCash = transferServiceImpl.createTransferFromAccountToCash(transferFromAccountToCashDto.getFromAccount(), transferFromAccountToCashDto.getAmount());
+        return ResponseEntity.ok(transferFromAccountToCash);
     }
 
-    @PatchMapping("/put")
+    @PostMapping("/put")
     public ResponseEntity<String> createTransferFromCashToAccount(@RequestBody TransferFromCashToAccountDto transferFromCashToAccountDto) {
-        transferService.createTransferFromCashToAccount(transferFromCashToAccountDto.getToAccount(), transferFromCashToAccountDto.getAmount());
+        transferServiceImpl.createTransferFromCashToAccount(transferFromCashToAccountDto.getToAccount(), transferFromCashToAccountDto.getAmount());
         return ResponseEntity.ok("OK");
     }
 }

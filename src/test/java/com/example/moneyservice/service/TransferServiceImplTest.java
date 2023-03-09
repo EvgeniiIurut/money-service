@@ -6,6 +6,7 @@ import com.example.moneyservice.model.Account;
 import com.example.moneyservice.model.Transfer;
 import com.example.moneyservice.repository.AccountRepository;
 import com.example.moneyservice.repository.TransferRepository;
+import com.example.moneyservice.service.impl.TransferServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,7 +24,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class TransferServiceTest {
+class TransferServiceImplTest {
 
     private Account account;
     private static final Account transferToAccount = new Account(2L, BigDecimal.ZERO, 0);
@@ -39,7 +40,7 @@ class TransferServiceTest {
     TransferRepository transferRepository;
 
     @InjectMocks
-    TransferService transferService;
+    TransferServiceImpl transferServiceImpl;
 
     @BeforeEach
     void initialize() {
@@ -54,7 +55,7 @@ class TransferServiceTest {
         when(accountRepository.save(any())).thenReturn(accountWithMoneyByTransfer);
         when(transferRepository.save(any())).thenReturn(new Transfer(accountWithOutMoneyByTransfer, accountWithMoneyByTransfer, new BigDecimal(100)));
 
-        Transfer transferFromAccountToOtherAccount = transferService.createTransfer(1L, 2L, new BigDecimal(100));
+        Transfer transferFromAccountToOtherAccount = transferServiceImpl.createTransfer(1L, 2L, new BigDecimal(100));
 
         assertEquals(accountWithOutMoneyByTransfer, transferFromAccountToOtherAccount.getFromAccount());
         assertEquals(accountWithMoneyByTransfer, transferFromAccountToOtherAccount.getToAccount());
@@ -70,7 +71,7 @@ class TransferServiceTest {
         when(accountRepository.save(any())).thenReturn(accountWithOutMoney);
         when(transferRepository.save(any())).thenReturn(new Transfer(account, null, new BigDecimal(100)));
 
-        Transfer transferFromAccountToCash = transferService.createTransferFromAccountToCash(1L, new BigDecimal(100));
+        Transfer transferFromAccountToCash = transferServiceImpl.createTransferFromAccountToCash(1L, new BigDecimal(100));
 
         assertEquals(new BigDecimal(100), transferFromAccountToCash.getAmount());
         assertEquals(accountWithOutMoney, transferFromAccountToCash.getFromAccount());
@@ -85,7 +86,7 @@ class TransferServiceTest {
         when(accountRepository.save(any())).thenReturn(accountWithMoney);
         when(transferRepository.save(any())).thenReturn(new Transfer(account, null, new BigDecimal(100)));
 
-        Transfer transferFromAccountToCash = transferService.createTransferFromCashToAccount(1L, new BigDecimal(100));
+        Transfer transferFromAccountToCash = transferServiceImpl.createTransferFromCashToAccount(1L, new BigDecimal(100));
 
         assertEquals(new BigDecimal(100), transferFromAccountToCash.getAmount());
         assertEquals(accountWithMoney, transferFromAccountToCash.getFromAccount());
@@ -98,13 +99,13 @@ class TransferServiceTest {
     void shouldThrowExceptionForNegativeBalance() {
         when(accountRepository.getById(any())).thenReturn(accountWithNotEnoughMoney);
 
-        assertThrows(NegativeAmountException.class, () -> transferService.createTransferFromAccountToCash(1L, new BigDecimal(100)));
+        assertThrows(NegativeAmountException.class, () -> transferServiceImpl.createTransferFromAccountToCash(1L, new BigDecimal(100)));
 
         verify(accountRepository, times(1)).getById(any());
     }
 
     @Test
     void shouldThrowExceptionForSameAccountTransfer() {
-        assertThrows(SameAccountsException.class, () -> transferService.createTransfer(1L, 1L, new BigDecimal(100)));
+        assertThrows(SameAccountsException.class, () -> transferServiceImpl.createTransfer(1L, 1L, new BigDecimal(100)));
     }
 }

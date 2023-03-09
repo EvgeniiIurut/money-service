@@ -1,5 +1,7 @@
 package com.example.moneyservice.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -27,9 +29,11 @@ public class Transfer {
     private Long id;
     @OneToOne
     @JoinColumn(name = "from_account_id", referencedColumnName = "id")
+    @JsonIgnore
     private Account fromAccount;
     @OneToOne
     @JoinColumn(name = "to_account_id", referencedColumnName = "id")
+    @JsonIgnore
     private Account toAccount;
     private BigDecimal amount;
 
