@@ -24,7 +24,10 @@ public class TransferController {
 
     @PostMapping("/take")
     public ResponseEntity<Transfer> createTransferFromAccountToCash(@RequestBody TransferFromAccountToCashDto transferFromAccountToCashDto) {
-        Transfer transferFromAccountToCash = transferServiceImpl.createTransferFromAccountToCash(transferFromAccountToCashDto.getFromAccount(), transferFromAccountToCashDto.getAmount());
+        Transfer transferFromAccountToCash = transferServiceImpl
+                .createTransferFromAccountToCash(transferFromAccountToCashDto
+                        .getFromAccount(), transferFromAccountToCashDto
+                        .getAmount());
         return ResponseEntity.ok(transferFromAccountToCash);
     }
 

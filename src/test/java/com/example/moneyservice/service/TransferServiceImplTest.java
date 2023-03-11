@@ -10,11 +10,14 @@ import com.example.moneyservice.service.impl.TransferServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -32,7 +35,6 @@ class TransferServiceImplTest {
     private static final Account accountWithMoneyByTransfer = new Account(2L, new BigDecimal(100), 0);
     private static final Account accountWithOutMoney = new Account(1L, new BigDecimal(900), 0);
     private static final Account accountWithMoney = new Account(1L, new BigDecimal(1100), 0);
-    private static final Account accountWithNotEnoughMoney = new Account(1L, BigDecimal.ZERO, 0);
 
     @Mock
     AccountRepository accountRepository;
@@ -95,8 +97,9 @@ class TransferServiceImplTest {
         verify(transferRepository, times(1)).save(any());
     }
 
-    @Test
-    void shouldThrowExceptionForNegativeBalance() {
+    @ParameterizedTest
+    @MethodSource("arrays")
+    void shouldThrowExceptionForNegativeBalance(Account accountWithNotEnoughMoney) {
         when(accountRepository.getById(any())).thenReturn(accountWithNotEnoughMoney);
 
         assertThrows(NegativeAmountException.class, () -> transferServiceImpl.createTransferFromAccountToCash(1L, new BigDecimal(100)));
@@ -107,5 +110,13 @@ class TransferServiceImplTest {
     @Test
     void shouldThrowExceptionForSameAccountTransfer() {
         assertThrows(SameAccountsException.class, () -> transferServiceImpl.createTransfer(1L, 1L, new BigDecimal(100)));
+    }
+
+    private static Stream<Account> arrays() {
+        return Stream.of(
+                new Account(1L, new BigDecimal(-10), 0),
+                new Account(1L, new BigDecimal(-1000), 0),
+                new Account(1L, BigDecimal.ZERO, 0)
+        );
     }
 }
